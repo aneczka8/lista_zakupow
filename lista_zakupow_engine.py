@@ -35,8 +35,10 @@ def delete_product(product):
     global store_shopping_dict
 
     shopping_list = create_shopping_list()
-
-    shopping_list.remove(product)
+    try:
+        shopping_list.remove(product)
+    except ValueError:
+        return f"Nie ma: {product} na liście"
     for store_list in store_shopping_dict.values():
         if product in store_list:
             store_list.remove(product)
@@ -47,19 +49,24 @@ def add_store(store):
 
 def delete_store(store):
     global store_shopping_dict
-    store_shopping_dict.pop(store)
+    try:
+        store_shopping_dict.pop(store)
+    except KeyError:
+        return f"Nie ma sklepu: {store}"
 
 def read_file(file_name):
     global store_shopping_dict
     no_file = 'Nie ma takiego pliku'
     wrong_file = 'Plik ma niewłaściwy format'
+    store_shopping_dict.clear()
 
     try:
-        with open(f"{file_name}.csv") as csvfile:
+        with open(f"{file_name}.csv", newline='') as csvfile:
             reader = csv.reader(csvfile)
             for row in reader:
-                store, products = row
-                store_shopping_dict[store] = products.split(', ')
+                store = row[0]
+                products = row[1:]
+                store_shopping_dict[store] = products
     except FileNotFoundError:
         return no_file
     except ValueError:
@@ -68,7 +75,7 @@ def read_file(file_name):
 def save_file(file_name):
     global store_shopping_dict
 
-    with open(f"{file_name}.csv","w") as csvfile:
+    with open(f"{file_name}.csv","w", newline='') as csvfile:
         writer = csv.writer(csvfile)
         for store, products in store_shopping_dict.items():
-            writer.writerow([store,products])
+            writer.writerow([store]+products)
