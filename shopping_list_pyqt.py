@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, pyqtSignal
-from lista_zakupow_engine import *
+from shopping_list_engine import *
 
 
 class MainView(QWidget):
@@ -11,23 +11,23 @@ class MainView(QWidget):
         self.initUI()
 
     def initUI(self):
-        self.setWindowTitle("Lista zakupów")
+        self.setWindowTitle("Shopping list")
         layout = QGridLayout()
         self.setLayout(layout)
 
-        show_store_btn = QPushButton("Przejdź do poszczególnych sklepów")
+        show_store_btn = QPushButton("Go to the store menu")
         show_store_btn.clicked.connect(self.switch_widget)
         layout.addWidget(show_store_btn, 1, 0)
 
-        self.refresh_btn = QPushButton("Odśwież listę zakupów", self)
+        self.refresh_btn = QPushButton("Refresh the shopping list", self)
         self.refresh_btn.clicked.connect(self.refresh)
         layout.addWidget(self.refresh_btn, 2, 0)
 
-        self.save_list_btn = QPushButton("Zapisz listę do pliku", self)
+        self.save_list_btn = QPushButton("Save the list to a file", self)
         self.save_list_btn.clicked.connect(self.save_list)
         layout.addWidget(self.save_list_btn, 3, 0)
 
-        self.read_list_btn = QPushButton("Wczytaj listę z pliku", self)
+        self.read_list_btn = QPushButton("Read the list from a file", self)
         self.read_list_btn.clicked.connect(self.read_list)
         layout.addWidget(self.read_list_btn, 4, 0)
 
@@ -38,17 +38,17 @@ class MainView(QWidget):
         layout.addWidget(self.shopping_list_listwidget, 1, 1)
         self.shopping_list_listwidget.itemDoubleClicked.connect(self.delete_product)
 
-        self.add_product_label = QLabel("Wpisz nazwę nowego produktu do listy: ", self)
+        self.add_product_label = QLabel("Type new product into the list: ", self)
         layout.addWidget(self.add_product_label, 2, 1)
 
         self.new_product_line = QLineEdit()
         layout.addWidget(self.new_product_line, 3, 1)
 
-        self.add_product_btn = QPushButton("Dodaj produkt", self)
+        self.add_product_btn = QPushButton("Add product", self)
         self.add_product_btn.clicked.connect(self.launchStoreChoice)
         layout.addWidget(self.add_product_btn, 4, 1)
 
-        self.delete_info_label = QLabel("Aby usunąć kliknij dwa razy na produkt.", self)
+        self.delete_info_label = QLabel("To remove,  double click on the product.", self)
         layout.addWidget(self.delete_info_label, 0, 1)
 
     def refresh(self):
@@ -60,7 +60,7 @@ class MainView(QWidget):
                 self.shopping_list_listwidget.insertItem(index, item)
 
     def delete_product(self, item):
-        reply = QMessageBox.question(self, '', f'Czy na pewno chcesz usunąć {item.text()} z listy?',
+        reply = QMessageBox.question(self, '', f'Are you sure you want to delete {item.text()} from the list?',
         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
             delete_product(item.text())
@@ -68,7 +68,7 @@ class MainView(QWidget):
             self.shopping_list_listwidget.takeItem(item_index)
 
     def launchFileNameInput(self):
-        text, ok = QInputDialog.getText(self, 'Nazwa pliku', 'Podaj nazwę pliku')
+        text, ok = QInputDialog.getText(self, 'File name', 'Type the file name')
         if ok:
             self.file_name = str(text)
 
@@ -83,7 +83,7 @@ class MainView(QWidget):
         self.launchFileNameInput()
         if type(read_file(self.file_name)) == str:
             text = read_file(self.file_name)
-            QMessageBox.warning(self, "Nieudana próba", text)
+            QMessageBox.warning(self, "Failed attempt", text)
         else:
             read_file(self.file_name)
 
@@ -137,7 +137,7 @@ class StoreView(QWidget):
         layout = QGridLayout()
         stores = list(show_stores())
 
-        self.stores_groupbox = QGroupBox("Twoje sklepy")
+        self.stores_groupbox = QGroupBox("Your stores")
         stores_layout = QVBoxLayout()
         self.stores_groupbox.setLayout(stores_layout)
 
@@ -163,7 +163,7 @@ class StoreView(QWidget):
         layout.addWidget(self.stores_groupbox, 0, 0, len(stores), 1)
         layout.addWidget(self.deleting_groupbox, 0, 1, len(stores), 1)
 
-        self.delete_info_label = QLabel("Aby usunąć kliknij dwa razy na produkt.", self)
+        self.delete_info_label = QLabel("To delete,  double click on the product.", self)
         layout.addWidget(self.delete_info_label, 0, 2)
 
         store_list = create_store_list(stores[0])
@@ -175,27 +175,27 @@ class StoreView(QWidget):
         layout.addWidget(self.store_list_listwidget, 1, 2, len(stores), 1)
         self.store_list_listwidget.itemDoubleClicked.connect(self.delete_product)
 
-        self.add_store_btn = QPushButton("Dodaj sklep", self)
+        self.add_store_btn = QPushButton("Add store", self)
         self.add_store_btn.clicked.connect(self.add_store)
         layout.addWidget(self.add_store_btn, len(stores) + 1, 0)
 
-        self.add_product_label = QLabel("Wpisz nazwę nowego produkt do listy: ", self)
+        self.add_product_label = QLabel("Type new product into the list:: ", self)
         layout.addWidget(self.add_product_label, len(stores) + 1, 2)
 
         self.new_product_line = QLineEdit()
         layout.addWidget(self.new_product_line, len(stores) + 2, 2)
 
-        self.add_product_btn = QPushButton("Dodaj produkt", self)
+        self.add_product_btn = QPushButton("Add product", self)
         self.add_product_btn.clicked.connect(self.add_product_to_store)
         layout.addWidget(self.add_product_btn, len(stores) + 3, 2)
 
-        exit_btn = QPushButton("Wróć do menu głównego")
+        exit_btn = QPushButton("Go back to the main menu")
         exit_btn.clicked.connect(self.switch_widget)
         layout.addWidget(exit_btn, len(stores) + 4, 2)
         self.setLayout(layout)
 
     def delete_product(self, item):
-        reply = QMessageBox.question(self, '', f'Czy na pewno chcesz usunąć {item.text()} z listy?',
+        reply = QMessageBox.question(self, '', f'Are you sure you want to delete {item.text()} from the list?',
         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
             delete_product(item.text())
@@ -203,7 +203,7 @@ class StoreView(QWidget):
             self.store_list_listwidget.takeItem(item_index)
 
     def add_store(self):
-        text, ok = QInputDialog.getText(self, 'Dodawanie sklepu', 'Podaj nazwę sklepu')
+        text, ok = QInputDialog.getText(self, 'Store addition', 'Type a store name')
         if ok:
             store_name = str(text)
             btn = QPushButton(store_name, self)
